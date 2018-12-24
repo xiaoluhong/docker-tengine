@@ -42,12 +42,14 @@ ENV CONFIG "\
 	--with-http_concat_module \
 	--with-http_sysguard_module \
 	--with-http_dyups_module \
+	--add-module=/root/nginx-module-vts \
 	"
 
 RUN addgroup -S nginx \
 	&& adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
 	&& apk add --no-cache --virtual .build-deps \
 		gcc \
+		git \
 		libc-dev \
 		make \
 		openssl-dev \
@@ -58,14 +60,16 @@ RUN addgroup -S nginx \
 		gnupg \
 		libxslt-dev \
 		gd-dev \
-		geoip-dev;
+		geoip-dev \
+	&&	cd /root \
+	&&  git clone git://github.com/vozlt/nginx-module-vts.git;
 RUN curl -L "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
 	&& mkdir -p /usr/src \
-  && tar -zxC /usr/src -f tengine.tar.gz \
-  && rm tengine.tar.gz \
-  && cd /usr/src/tengine-$TENGINE_VERSION/ \
+  	&& tar -zxC /usr/src -f tengine.tar.gz \
+  	&& rm tengine.tar.gz \
+  	&& cd /usr/src/tengine-$TENGINE_VERSION/ \
 	&& ./configure $CONFIG --with-debug \
-  && make -j$(getconf _NPROCESSORS_ONLN) \
+  	&& make -j$(getconf _NPROCESSORS_ONLN) \
 	&& mv objs/nginx objs/nginx-debug \
 	&& ./configure $CONFIG \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
