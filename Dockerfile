@@ -43,6 +43,8 @@ ENV CONFIG "\
 	--with-http_sysguard_module \
 	--with-http_dyups_module \
 	--add-module=/root/nginx-module-vts \
+	--add-module=/root/nginx-module-sts \
+	--add-module=/root/nginx-module-stream-sts \
 	"
 
 RUN addgroup -S nginx \
@@ -62,7 +64,11 @@ RUN addgroup -S nginx \
 		gd-dev \
 		geoip-dev \
 	&&	cd /root \
-	&&  git clone git://github.com/vozlt/nginx-module-vts.git;
+	&&  git clone git://github.com/vozlt/nginx-module-vts.git \
+	&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
+	&&  git clone git://github.com/vozlt/nginx-module-sts.git \
+
+	;
 RUN curl -L "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
 	&& mkdir -p /usr/src \
   	&& tar -zxC /usr/src -f tengine.tar.gz \
