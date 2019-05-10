@@ -36,7 +36,6 @@ ENV CONFIG "\
 	--with-mail_ssl_module \
 	--with-file-aio \
 	--with-http_v2_module \
-	--with-http_concat_module \
 	--with-http_sysguard_module \
 	--with-http_dyups_module \
 	--add-module=/root/nginx-module-vts \
