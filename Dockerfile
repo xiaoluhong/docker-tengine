@@ -1,6 +1,6 @@
 FROM alpine:3.8
 
-ENV TENGINE_VERSION 2.2.3
+ENV TENGINE_VERSION 2.3.0
 
 ENV CONFIG "\
 	--prefix=/etc/nginx \
