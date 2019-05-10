@@ -49,9 +49,6 @@ ENV CONFIG "\
         --with-compat \
         --with-file-aio \
         --with-http_v2_module \
-		--with-http_dyups_module \
-		--with-http_dyups_lua_api \
-		--with-http_concat_module \
         --add-module=modules/ngx_http_upstream_check_module \
 		--add-module=/root/nginx-module-vts \
 		--add-module=/root/nginx-module-sts \
@@ -63,6 +60,7 @@ RUN     addgroup -S nginx \
         && apk add --no-cache --virtual .build-deps \
                 gcc \
 				git \
+				gawk \
                 libc-dev \
                 make \
                 openssl-dev \
@@ -78,7 +76,7 @@ RUN     addgroup -S nginx \
 				&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
 				&&  git clone git://github.com/vozlt/nginx-module-sts.git 
 
-RUN        curl -L "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
+RUN        curl -LSs "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
         && mkdir -p /usr/src \
         && tar -zxC /usr/src -f tengine.tar.gz \
         && rm tengine.tar.gz \
@@ -113,7 +111,8 @@ RUN        curl -L "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.
                 scanelf --needed --nobanner --format '%n#p' /usr/sbin/nginx /usr/lib/nginx/modules/*.so /tmp/envsubst \
                         | tr ',' '\n' \
                         | sort -u \
-                        | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \ )" \
+                        | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \ 
+				)" \
         && apk add --no-cache --virtual .nginx-rundeps $runDeps \
         && apk del .build-deps \
         && apk del .gettext \
