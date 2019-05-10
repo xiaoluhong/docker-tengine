@@ -30,7 +30,6 @@ ENV CONFIG "\
 	--with-http_secure_link_module \
 	--with-http_stub_status_module \
 	--with-http_auth_request_module \
-	--with-http_image_filter_module=shared \
 	--with-http_geoip_module=shared \
 	--with-threads \
 	--with-http_slice_module \
