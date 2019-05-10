@@ -74,9 +74,8 @@ RUN     addgroup -S nginx \
 				&&	cd /root \
 				&&  git clone git://github.com/vozlt/nginx-module-vts.git \
 				&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
-				&&  git clone git://github.com/vozlt/nginx-module-sts.git 
-
-RUN        curl -LSs "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
+				&&  git clone git://github.com/vozlt/nginx-module-sts.git \
+        && curl -LSs "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
         && mkdir -p /usr/src \
         && tar -zxC /usr/src -f tengine.tar.gz \
         && rm tengine.tar.gz \
@@ -118,6 +117,9 @@ RUN        curl -LSs "http://tengine.taobao.org/download/tengine-$TENGINE_VERSIO
         && apk del .gettext \
         && mv /tmp/envsubst /usr/local/bin/ \
         && apk add --no-cache tzdata \
+        && rm -rf /root/* \
+        && rm -rf /var/cache/apk/* \
+        && rm -rf /tmp/* \
         && ln -sf /dev/stdout /var/log/nginx/access.log \
         && ln -sf /dev/stderr /var/log/nginx/error.log
 
