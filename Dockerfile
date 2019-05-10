@@ -62,6 +62,7 @@ RUN     addgroup -S nginx \
         && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
         && apk add --no-cache --virtual .build-deps \
                 gcc \
+				git \
                 libc-dev \
                 make \
                 openssl-dev \
