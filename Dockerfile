@@ -1,6 +1,9 @@
-FROM alpine
+FROM alpine:3.9
+
 
 ENV TENGINE_VERSION 2.3.1
+
+# nginx: https://git.io/vSIyj
 
 RUN rm -rf /var/cache/apk/* && \
     rm -rf /tmp/*
@@ -56,18 +59,14 @@ ENV CONFIG "\
 	--add-module=/root/nginx-module-stream-sts \
         --add-module=modules/ngx_http_upstream_check_module \
         --add-module=modules/ngx_http_upstream_session_sticky_module \
-        --add-module=modules/ngx_http_upstream_keepalive_module \
         --add-module=modules/ngx_http_upstream_consistent_hash_module \
-        --add-module=modules/ngx_http_proxy_connect_module \
         --add-module=modules/ngx_http_sysguard_module \
-        --add-module=modules/ngx_http_concat_module \
-        --add-module=modules/ngx_http_concat_module \
-        --add-module=modules/ngx_http_upstream_dynamic_module \
+        --add-module=modules/ngx_http_upstream_keepalive_module \
         --without-http_upstream_keepalive_module \
         "
-
 RUN     addgroup -S nginx \
         && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
+        && apk update ; apk upgrade \
         && apk add --no-cache --virtual .build-deps \
                 gcc \
 		git \
@@ -89,51 +88,61 @@ RUN     addgroup -S nginx \
 	&&  git clone git://github.com/vozlt/nginx-module-vts.git \
 	&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
 	&&  git clone git://github.com/vozlt/nginx-module-sts.git \
-        &&  curl -LSs "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
-        &&  mkdir -p /usr/src \
-        &&  tar -zxC /usr/src -f tengine.tar.gz \
-        &&  cd /usr/src/tengine-$TENGINE_VERSION \
-        &&  ./configure $CONFIG --with-debug \
-        &&  make -j$(getconf _NPROCESSORS_ONLN) \
-        &&  mv objs/nginx objs/nginx-debug \
-        &&  mv objs/ngx_http_xslt_filter_module.so objs/ngx_http_xslt_filter_module-debug.so \
-        &&  mv objs/ngx_http_image_filter_module.so objs/ngx_http_image_filter_module-debug.so \
-        &&  mv objs/ngx_http_geoip_module.so objs/ngx_http_geoip_module-debug.so \
-        &&  mv objs/ngx_stream_geoip_module.so objs/ngx_stream_geoip_module-debug.so \
-        &&  ./configure $CONFIG \
-        &&  make -j$(getconf _NPROCESSORS_ONLN) \
-        &&  make install \
-        &&  rm -rf /etc/nginx/html/ \
-        &&  mkdir /etc/nginx/conf.d/ \
-        &&  mkdir -p /usr/share/nginx/html/ \
-        &&  install -m644 html/index.html /usr/share/nginx/html/ \
-        &&  install -m644 html/50x.html /usr/share/nginx/html/ \
-        &&  install -m755 objs/nginx-debug /usr/sbin/nginx-debug \
-        &&  install -m755 objs/ngx_http_xslt_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_xslt_filter_module-debug.so \
-        &&  install -m755 objs/ngx_http_image_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_image_filter_module-debug.so \
-        &&  install -m755 objs/ngx_http_geoip_module-debug.so /usr/lib/nginx/modules/ngx_http_geoip_module-debug.so \
-        &&  install -m755 objs/ngx_stream_geoip_module-debug.so /usr/lib/nginx/modules/ngx_stream_geoip_module-debug.so \
-        &&  ln -s ../../usr/lib/nginx/modules /etc/nginx/modules \
-        &&  strip /usr/sbin/nginx* \
-        &&  strip /usr/lib/nginx/modules/*.so \
-        &&  apk add --no-cache --virtual .gettext gettext \
-        &&  mv /usr/bin/envsubst /tmp/ \
-        &&  runDeps="$( \
+        && curl -L "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
+        && mkdir -p /usr/src \
+        && tar -zxC /usr/src -f tengine.tar.gz \
+        && rm tengine.tar.gz \
+        && cd /usr/src/tengine-$TENGINE_VERSION \
+        && ./configure $CONFIG --with-debug \
+        && make -j$(getconf _NPROCESSORS_ONLN) \
+        && mv objs/nginx objs/nginx-debug \
+        && mv objs/ngx_http_xslt_filter_module.so objs/ngx_http_xslt_filter_module-debug.so \
+        && mv objs/ngx_http_image_filter_module.so objs/ngx_http_image_filter_module-debug.so \
+        && mv objs/ngx_http_geoip_module.so objs/ngx_http_geoip_module-debug.so \
+        && mv objs/ngx_stream_geoip_module.so objs/ngx_stream_geoip_module-debug.so \
+        && ./configure $CONFIG \
+        && make -j$(getconf _NPROCESSORS_ONLN) \
+        && make install \
+        && rm -rf /etc/nginx/html/ \
+        && mkdir /etc/nginx/conf.d/ \
+        && mkdir -p /usr/share/nginx/html/ \
+        && install -m644 html/index.html /usr/share/nginx/html/ \
+        && install -m644 html/50x.html /usr/share/nginx/html/ \
+        && install -m755 objs/nginx-debug /usr/sbin/nginx-debug \
+        && install -m755 objs/ngx_http_xslt_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_xslt_filter_module-debug.so \
+        && install -m755 objs/ngx_http_image_filter_module-debug.so /usr/lib/nginx/modules/ngx_http_image_filter_module-debug.so \
+        && install -m755 objs/ngx_http_geoip_module-debug.so /usr/lib/nginx/modules/ngx_http_geoip_module-debug.so \
+        && install -m755 objs/ngx_stream_geoip_module-debug.so /usr/lib/nginx/modules/ngx_stream_geoip_module-debug.so \
+        && ln -s ../../usr/lib/nginx/modules /etc/nginx/modules \
+        && strip /usr/sbin/nginx* \
+        && strip /usr/lib/nginx/modules/*.so \
+        && rm -rf /usr/src/tengine-$NGINX_VERSION \
+        \
+        # Bring in gettext so we can get `envsubst`, then throw
+        # the rest away. To do this, we need to install `gettext`
+        # then move `envsubst` out of the way so `gettext` can
+        # be deleted completely, then move `envsubst` back.
+        && apk add --no-cache --virtual .gettext gettext \
+        && mv /usr/bin/envsubst /tmp/ \
+        \
+        && runDeps="$( \
                 scanelf --needed --nobanner --format '%n#p' /usr/sbin/nginx /usr/lib/nginx/modules/*.so /tmp/envsubst \
                         | tr ',' '\n' \
                         | sort -u \
-                        | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \ 
-				)" \
-        &&  apk add --no-cache --virtual .nginx-rundeps $runDeps \
-        &&  apk del .build-deps \
-        &&  apk del .gettext \
-        &&  mv /tmp/envsubst /usr/local/bin/ \
-        &&  rm -rf /root/* \
-        &&  rm -rf /var/cache/apk/* \
-        &&  rm -rf /tmp/* \
-        &&  rm -rf /usr/src/tengine-$TENGINE_VERSION \
-        &&  ln -sf /dev/stdout /var/log/nginx/access.log \
-        &&  ln -sf /dev/stderr /var/log/nginx/error.log
+                        | awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
+        )" \
+        && apk add --no-cache --virtual .nginx-rundeps $runDeps \
+        && apk del .build-deps \
+        && apk del .gettext \
+        && mv /tmp/envsubst /usr/local/bin/ \
+        \
+        # Bring in tzdata so users could set the timezones through the environment
+        # variables
+        && apk add --no-cache tzdata \
+        \
+        # forward request and error logs to docker log collector
+        && ln -sf /dev/stdout /var/log/nginx/access.log \
+        && ln -sf /dev/stderr /var/log/nginx/error.log
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
