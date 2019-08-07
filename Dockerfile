@@ -60,6 +60,7 @@ ENV CONFIG "\
         --add-module=modules/ngx_http_upstream_check_module \
         --add-module=modules/ngx_http_upstream_session_sticky_module \
         --add-module=modules/ngx_http_upstream_consistent_hash_module \
+        --add-module=modules/ngx_http_upstream_dynamic_module \
         --add-module=modules/ngx_http_sysguard_module \
         --add-module=modules/ngx_http_upstream_keepalive_module \
         --without-http_upstream_keepalive_module \
