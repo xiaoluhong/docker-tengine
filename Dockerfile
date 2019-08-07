@@ -1,6 +1,6 @@
 FROM alpine:3.9
 
-ENV TENGINE_VERSION 2.3.0
+ENV TENGINE_VERSION 2.3.1
 
 RUN rm -rf /var/cache/apk/* && \
     rm -rf /tmp/*
@@ -22,6 +22,7 @@ ENV CONFIG "\
         --user=nginx \
         --group=nginx \
         --with-http_ssl_module \
+        --with-openssl-async \
         --with-http_realip_module \
         --with-http_addition_module \
         --with-http_sub_module \
@@ -40,6 +41,7 @@ ENV CONFIG "\
         --with-threads \
         --with-stream \
         --with-stream_ssl_module \
+        --with-stream_sni \
         --with-stream_ssl_preread_module \
         --with-stream_realip_module \
         --with-stream_geoip_module=dynamic \
@@ -49,18 +51,26 @@ ENV CONFIG "\
         --with-compat \
         --with-file-aio \
         --with-http_v2_module \
-        --add-module=modules/ngx_http_upstream_check_module \
-		--add-module=/root/nginx-module-vts \
-		--add-module=/root/nginx-module-sts \
-		--add-module=/root/nginx-module-stream-sts \
+        --with-http_concat_module \
+        --with-http_sysguard_module \
+        --with-http_dyups_module \
+        --with-http_upstream_dynamic_module \
+        --with-http_headers_module \
+        --with-http_upstream_check_module \
+        --with-http_upstream_keepalive_module \
+        --with-http_upstream_consistent_hash_module \
+        --with-http_upstream_session_sticky_module \
+	--add-module=/root/nginx-module-vts \
+	--add-module=/root/nginx-module-sts \
+	--add-module=/root/nginx-module-stream-sts \
         "
 
 RUN     addgroup -S nginx \
         && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
         && apk add --no-cache --virtual .build-deps \
                 gcc \
-				git \
-				gawk \
+		git \
+		gawk \
                 tzdata \
                 libc-dev \
                 make \
@@ -72,10 +82,10 @@ RUN     addgroup -S nginx \
                 libxslt-dev \
                 gd-dev \
                 geoip-dev \
-		&&	cd /root \
-		&&  git clone git://github.com/vozlt/nginx-module-vts.git \
-		&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
-		&&  git clone git://github.com/vozlt/nginx-module-sts.git \
+	&& cd /root \
+	&&  git clone git://github.com/vozlt/nginx-module-vts.git \
+	&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
+	&&  git clone git://github.com/vozlt/nginx-module-sts.git \
         &&  curl -LSs "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
         &&  mkdir -p /usr/src \
         &&  tar -zxC /usr/src -f tengine.tar.gz \
