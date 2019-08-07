@@ -64,6 +64,14 @@ ENV CONFIG "\
         --add-module=modules/ngx_http_sysguard_module \
         --add-module=modules/ngx_http_upstream_keepalive_module \
         --without-http_upstream_keepalive_module \
+        --add-module=modules/ngx_http_proxy_connect_module \
+        --add-module=modules/ngx_http_concat_module \
+        --add-module=modules/ngx_http_footer_filter_module \
+        --add-module=modules/ngx_http_reqstat_module \
+        --add-module=modules/ngx_http_slice_module \
+        --add-module=modules/ngx_http_trim_filter_module \
+        --add-module=modules/ngx_http_user_agent_module \
+        --add-module=modules/ngx_slab_stat \
         "
 RUN     addgroup -S nginx \
         && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
