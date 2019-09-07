@@ -1,12 +1,15 @@
 FROM alpine:3.9
 
+ENV     TENGINE_VERSION 2.3.2
 
-ENV TENGINE_VERSION 2.3.1
-
-# nginx: https://git.io/vSIyj
-
-RUN rm -rf /var/cache/apk/* && \
-    rm -rf /tmp/*
+ENV     LANGUAGE en_US.UTF-8
+ENV     LANG en_US.UTF-8
+ENV     LC_ALL en_US.UTF-8
+# Configure timezone and locale
+RUN     apk add --no-cache tzdata \
+    &&  cp -rf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \  
+    &&  rm -rf /var/cache/apk/* \
+    &&  rm -rf /tmp/*
 
 ENV CONFIG "\
         --prefix=/etc/nginx \
@@ -63,7 +66,6 @@ ENV CONFIG "\
         --add-module=modules/ngx_http_upstream_dynamic_module \
         --add-module=modules/ngx_http_sysguard_module \
         --add-module=modules/ngx_http_upstream_keepalive_module \
-        --without-http_upstream_keepalive_module \
         --add-module=modules/ngx_http_proxy_connect_module \
         --add-module=modules/ngx_http_concat_module \
         --add-module=modules/ngx_http_footer_filter_module \
@@ -72,8 +74,10 @@ ENV CONFIG "\
         --add-module=modules/ngx_http_trim_filter_module \
         --add-module=modules/ngx_http_user_agent_module \
         --add-module=modules/ngx_slab_stat \
+        --add-module=modules/ngx_http_upstream_vnswrr_module \
+        --without-http_upstream_keepalive_module \
         "
-RUN     addgroup -S nginx \
+RUN        addgroup -S nginx \
         && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
         && apk update ; apk upgrade \
         && apk add --no-cache --virtual .build-deps \
@@ -94,9 +98,9 @@ RUN     addgroup -S nginx \
                 gd-dev \
                 geoip-dev \
 	&& cd /root \
-	&&  git clone git://github.com/vozlt/nginx-module-vts.git \
-	&&  git clone git://github.com/vozlt/nginx-module-stream-sts.git \
-	&&  git clone git://github.com/vozlt/nginx-module-sts.git \
+	&& git clone https://github.com/vozlt/nginx-module-vts.git \
+	&& git clone https://github.com/vozlt/nginx-module-stream-sts.git \
+	&& git clone https://github.com/vozlt/nginx-module-sts.git \
         && curl -L "http://tengine.taobao.org/download/tengine-$TENGINE_VERSION.tar.gz" -o tengine.tar.gz \
         && mkdir -p /usr/src \
         && tar -zxC /usr/src -f tengine.tar.gz \
