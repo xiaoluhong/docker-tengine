@@ -7,7 +7,7 @@ ENV     LANG en_US.UTF-8
 ENV     LC_ALL en_US.UTF-8
 # Configure timezone and locale
 RUN     apk add --no-cache tzdata \
-    &&  cp -rf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \  
+    &&  cp -rf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime \
     &&  rm -rf /var/cache/apk/* \
     &&  rm -rf /tmp/*
 
@@ -78,7 +78,9 @@ ENV CONFIG "\
         --without-http_upstream_keepalive_module \
         "
 RUN        addgroup -S nginx \
+        && addgroup -S www-data \
         && adduser -D -S -h /var/cache/nginx -s /sbin/nologin -G nginx nginx \
+        && adduser -D -S -h /var/cache/www-data -s /sbin/nologin -G www-data www-data \
         && apk update ; apk upgrade \
         && apk add --no-cache --virtual .build-deps \
                 gcc \
