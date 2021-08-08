@@ -99,6 +99,8 @@ RUN        addgroup -S nginx \
                 libxslt-dev \
                 gd-dev \
                 geoip-dev \
+                bash \
+                bash-completion \
 	&& cd /root \
 	&& git clone https://github.com/vozlt/nginx-module-vts.git \
 	&& git clone https://github.com/vozlt/nginx-module-stream-sts.git \
